@@ -1,17 +1,8 @@
 import React from "react";
-import {
-  Card,
-  Button,
-  Badge,
-  Container,
-  Row,
-  Col,
-  Carousel
-} from "react-bootstrap";
+import { Card, Button, Container, Row, Col, Carousel } from "react-bootstrap";
 
 import "./App.css";
-
-import { getData } from "./api/api";
+import { getCars } from "./api/api";
 
 class App extends React.Component {
   state = {
@@ -25,56 +16,53 @@ class App extends React.Component {
   addCar = async () => {
     const { cars } = this.state;
 
-    const car = await getData();
+    const car = await getCars();
 
     this.setState({
       cars: [...cars, car]
     });
-
-    console.log(this.state);
   };
+
+  renderCarImage = (img, index) => (
+    <Carousel.Item key={index}>
+      <img className="d-block w-100" src={img} alt="Car" />
+    </Carousel.Item>
+  );
 
   render() {
     const { cars } = this.state;
 
+    if (cars.length < 1) {
+      return <h2 className="spinner">Loading...</h2>;
+    }
+
     return (
-      <Container className="bg-light">
-        <Row>
-          {cars.map((car, index) => {
-            return (
-              <Col lg="auto">
-                <Card style={{ width: "18rem" }} key={car.index}>
-                  {/* <Card.Img
-                    variant="top"
-                    src={car.nuotraukos && car.nuotraukos[0]}
-                  /> */}
-                  <Carousel indicators={false} interval={null}>
-                    {car.nuotraukos &&
-                      car.nuotraukos.map(img => {
-                        return (
-                          <Carousel.Item>
-                            <img
-                              className="d-block w-100"
-                              src={img}
-                              alt="Car"
-                            />
-                          </Carousel.Item>
-                        );
-                      })}
-                  </Carousel>
-                  <Card.Body>
-                    <Card.Title>{car.marke}</Card.Title>
-                    <Card.Text>Modelis: {car.modelis}</Card.Text>
-                    <Card.Text>Metai: {car.metai}</Card.Text>
-                    <Badge variant="light">{car.kaina} €</Badge>
-                  </Card.Body>
-                </Card>
-              </Col>
-            );
-          })}
-        </Row>
-        <Button onClick={this.addCar}>Pridėti</Button>
-      </Container>
+      <div className="wrapper">
+        <Container className="bg-light">
+          <Row>
+            {cars.map((car, index) => {
+              return (
+                <Col lg="3" sm="6" xs="12" key={index}>
+                  <Card style={{ width: "18rem" }}>
+                    <Carousel indicators={false} interval={null}>
+                      {car.nuotraukos.map(this.renderCarImage)}
+                    </Carousel>
+                    <Card.Body>
+                      <Card.Title>{car.marke}</Card.Title>
+                      <Card.Text>Modelis: {car.modelis}</Card.Text>
+                      <Card.Text>Metai: {car.metai}</Card.Text>
+                      <Card.Text className="highlighted">
+                        {car.kaina} €
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              );
+            })}
+          </Row>
+          <Button onClick={this.addCar}>Pridėti</Button>
+        </Container>
+      </div>
     );
   }
 }
